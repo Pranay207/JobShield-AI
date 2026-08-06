@@ -1,4 +1,4 @@
-import { api, supabase } from "@/api/supabaseClient";
+﻿import { api, supabase } from "@/api/supabaseClient";
 
 const FLAG_RULES = [
   { type: 'upfront_payment', title: 'Upfront payment demand', severity: 'high', score: 30, re: /(registration|training|security|processing|refundable|equipment|joining).{0,30}(fee|charge|deposit|amount|payment)|pay\s*(rs\.?|inr)?\s*\d+/i, description: 'The offer appears to ask for money before genuine employment is established.' },
@@ -83,6 +83,26 @@ async function invokeJobShieldAI(payload) {
   return data;
 }
 
+function fileToText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+function normalizedMimeType(file) {
+  if (file.type) return file.type;
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".pdf")) return "application/pdf";
+  if (name.endsWith(".png")) return "image/png";
+  if (name.endsWith(".jpg") || name.endsWith(".jpeg")) return "image/jpeg";
+  if (name.endsWith(".webp")) return "image/webp";
+  if (name.endsWith(".txt")) return "text/plain";
+  return "application/octet-stream";
+}
+
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -93,28 +113,44 @@ function fileToBase64(file) {
 }
 
 export async function uploadAndExtractText(file, onProgress) {
+  const mimeType = normalizedMimeType(file);
   onProgress?.('upload', 'Uploading file to secure storage...');
+  const uploadPromise = api.storage.uploadFile(file);
+
+  if (mimeType === 'text/plain') {
+    const [{ file_url }, text] = await Promise.all([uploadPromise, fileToText(file)]);
+    if (text.trim().length < 20) {
+      throw new Error('This text file does not contain enough readable job-offer content. Paste the full offer message manually.');
+    }
+    return { file_url, text, language: detectLanguage(text) };
+  }
+
   const [{ file_url }, base64] = await Promise.all([
-    api.storage.uploadFile(file),
+    uploadPromise,
     fileToBase64(file)
   ]);
 
-  onProgress?.('extract', 'Extracting readable text with AI...');
-  const result = await invokeJobShieldAI({
-    action: 'extract',
-    base64,
-    mimeType: file.type || 'application/octet-stream'
-  });
+  onProgress?.('extract', 'Reading text from the uploaded file...');
+  let result;
+  try {
+    result = await invokeJobShieldAI({
+      action: 'extract',
+      base64,
+      mimeType
+    });
+  } catch (error) {
+    throw new Error(`Text extraction failed for ${file.name}. The file may be blurry, protected, too large, or the AI extractor is temporarily unavailable. Paste the offer text manually for a guaranteed scan.`);
+  }
 
   const text = result.extracted_text || result.text || '';
-  if (text.trim().length < 5) {
-    throw new Error('Could not read any usable text from this file. Please upload a clearer screenshot or paste the offer text manually.');
+  if (text.trim().length < 20) {
+    throw new Error(`Could not find enough readable job-offer text in ${file.name}. Try a clearer screenshot/PDF or paste the message manually.`);
   }
 
   return {
     file_url,
     text,
-    language: result.language_detected || 'English'
+    language: result.language_detected || detectLanguage(text)
   };
 }
 
@@ -143,6 +179,7 @@ export async function verifyCompany(companyName) {
     };
   }
 }
+
 
 
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+﻿import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Upload, ClipboardPaste, FileText, X, ScanLine, AlertCircle, FolderOpen } from "lucide-react";
 import { api } from "@/api/supabaseClient";
@@ -14,7 +14,8 @@ import { analyzeOfferDna } from "@/lib/offerDna";
 import { analyzeRecruiterReality } from "@/lib/recruiterReality";
 import { extractScamFingerprint } from "@/lib/scamFingerprint";
 
-const ACCEPTED = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "image/webp"];
+const ACCEPTED = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "image/webp", "text/plain"];
+const ACCEPTED_EXTENSIONS = [".png", ".jpg", ".jpeg", ".pdf", ".webp", ".txt"];
 
 export default function Analyzer() {
   const navigate = useNavigate();
@@ -40,9 +41,12 @@ export default function Analyzer() {
 
   const addFiles = (fileList) => {
     const arr = Array.from(fileList || []);
-    const valid = arr.filter((f) => ACCEPTED.includes(f.type));
+    const valid = arr.filter((f) => {
+      const name = f.name.toLowerCase();
+      return ACCEPTED.includes(f.type) || ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
+    });
     if (valid.length === 0) {
-      setError("No supported files found. Please upload PNG, JPG, WebP images or PDFs.");
+      setError("No supported files found. Please upload PNG, JPG, WebP, PDF, or TXT files.");
       return;
     }
     setError(null);
@@ -174,7 +178,7 @@ export default function Analyzer() {
       } else {
         setAnalyzing(false);
         setStep(0);
-        setError("None of the files could be analyzed. Try clearer screenshots or paste the text manually.");
+        setError("None of the files could be analyzed. The file text could not be read. Try a clearer screenshot/PDF, upload a TXT file, or paste the offer text manually.");
       }
     } catch (e) {
       setError(e?.message || "Something went wrong while analyzing the offer. Please try again.");
@@ -191,7 +195,7 @@ export default function Analyzer() {
           <div className="text-center">
             <h1 className="text-3xl font-extrabold tracking-tight font-heading sm:text-4xl">Check a job offer</h1>
             <p className="mt-3 text-muted-foreground">
-              Paste the offer text, or upload one or more screenshots / PDFs. We support English, Hindi & Telugu.
+              Paste the offer text, or upload screenshots, PDFs, or TXT files. We support English, Hindi & Telugu.
             </p>
           </div>
 
@@ -240,7 +244,7 @@ export default function Analyzer() {
                 <Textarea
                   value={pasteText}
                   onChange={(e) => setPasteText(e.target.value)}
-                  placeholder="Paste the full job-offer message here — including sender, company name, salary, any fees, contact details…"
+                  placeholder="Paste the full job-offer message here - including sender, company name, salary, any fees, and contact details..."
                   className="min-h-[220px] resize-y"
                 />
               ) : (
@@ -288,7 +292,7 @@ export default function Analyzer() {
                     >
                       <Upload className="h-8 w-8 text-muted-foreground" />
                       <p className="mt-3 text-sm font-medium">Drop screenshots or PDFs here, or tap to browse</p>
-                      <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, WebP or PDF — you can add several at once</p>
+                      <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, WebP, PDF, or TXT - you can add several at once</p>
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); folderInputRef.current?.click(); }}
@@ -336,6 +340,9 @@ export default function Analyzer() {
     </div>
   );
 }
+
+
+
 
 
 
