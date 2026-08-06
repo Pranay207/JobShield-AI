@@ -1,24 +1,24 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { MessageCircle, ShieldAlert, ExternalLink, Loader2, Check, Share2, Link2, Twitter, Linkedin, Facebook, Mail, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { api } from "@/api/supabaseClient";
 
 const RISK_EMOJI = {
-  "Low Risk": "🟢",
-  "Medium Risk": "🟠",
-  "High Risk": "🔴",
+  "Low Risk": "Low",
+  "Medium Risk": "Medium",
+  "High Risk": "High",
 };
 
 export default function VerdictShare({ scan }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const verdictLine = `${RISK_EMOJI[scan.risk_level] || "⚪"} Risk: ${scan.risk_level || "Unknown"} (${Math.round(scan.risk_score ?? 0)}/100)`;
+  const verdictLine = `${RISK_EMOJI[scan.risk_level] || "Unknown"} Risk: ${scan.risk_level || "Unknown"} (${Math.round(scan.risk_score ?? 0)}/100)`;
   const topFlag = (scan.red_flags || [])[0];
   const companyLine = scan.company_name ? `Company: ${scan.company_name}` : "Company: not clearly identified";
 
-  const text = `JobShield verdict — ${verdictLine}\n${companyLine}\n${topFlag ? `Top red flag: ${topFlag.title}${topFlag.evidence ? ` — "${topFlag.evidence}"` : ""}` : "No major red flags detected."}\nFull report: ${window.location.href}\n\nVerify before you trust. Protect before you pay.`;
+  const text = `JobShield verdict - ${verdictLine}\n${companyLine}\n${topFlag ? `Top red flag: ${topFlag.title}${topFlag.evidence ? ` - "${topFlag.evidence}"` : ""}` : "No major red flags detected."}\nFull report: ${window.location.href}\n\nVerify before you trust. Protect before you pay.`;
 
   const shareWhatsApp = () => {
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -32,7 +32,7 @@ export default function VerdictShare({ scan }) {
     if (navigator.share) {
       try {
         await navigator.share({ title: "JobShield verdict", text, url: shareUrl });
-      } catch { /* user cancelled — no-op */ }
+      } catch { /* user cancelled - no-op */ }
       return;
     }
     copyLink();
@@ -134,7 +134,7 @@ export default function VerdictShare({ scan }) {
         </DropdownMenu>
         <Button variant="outline" onClick={emailMe} disabled={sending || sent} className="justify-start">
           {sent ? <Check className="mr-2 h-4 w-4 text-emerald-500" /> : sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          {sent ? "Email sent" : sending ? "Sending…" : "Email me a copy"}
+          {sent ? "Email sent" : sending ? "Sending..." : "Email me a copy"}
         </Button>
         <Button onClick={reportToCyber} className="justify-start">
           <ExternalLink className="mr-2 h-4 w-4" />
@@ -142,10 +142,11 @@ export default function VerdictShare({ scan }) {
         </Button>
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Email copy is sent to your registered address. The cybercrime.gov.in button opens the official portal — use the downloaded evidence PDF as your attachment.
+        Email copy is sent to your registered address. The cybercrime.gov.in button opens the official portal - use the downloaded evidence PDF as your attachment.
       </p>
     </section>
   );
 }
+
 
 

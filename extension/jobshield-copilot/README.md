@@ -1,4 +1,4 @@
-# JobShield ScamShield Copilot
+﻿# JobShield ScamShield Copilot
 
 Chrome/Edge extension prototype for real-time job scam detection.
 
@@ -28,7 +28,7 @@ C:\Users\Shiva\Downloads\Jobshield\extension\jobshield-copilot
 Open the extension popup and change JobShield app URL from:
 
 ```text
-http://127.0.0.1:5173
+https://job-shield-ai-beta.vercel.app
 ```
 
 to your Vercel URL.

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Download, Share2, ScanLine, Lightbulb, Loader2, AlertCircle, FileText, Copy, Check } from "lucide-react";
 import { api } from "@/api/supabaseClient";
@@ -8,7 +8,6 @@ import Footer from "@/components/jobshield/Footer";
 import RiskScoreCard from "@/components/jobshield/RiskScoreCard";
 import RedFlagsList from "@/components/jobshield/RedFlagsList";
 import CompanyVerificationCard from "@/components/jobshield/CompanyVerificationCard";
-import { generateEvidenceReport } from "@/lib/jobshieldReport";
 import VerdictShare from "@/components/jobshield/VerdictShare";
 import ScamCoach from "@/components/jobshield/ScamCoach";
 import ScamFingerprintCard from "@/components/jobshield/ScamFingerprintCard";
@@ -43,6 +42,11 @@ export default function Results() {
     return () => { active = false; };
   }, [id]);
 
+  const downloadEvidenceReport = async () => {
+    const { generateEvidenceReport } = await import("@/lib/jobshieldReport");
+    generateEvidenceReport(scan);
+  };
+
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -66,7 +70,7 @@ export default function Results() {
           {loading ? (
             <div className="mt-20 flex flex-col items-center justify-center text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="mt-3 text-sm">Loading report…</p>
+              <p className="mt-3 text-sm">Loading report...</p>
             </div>
           ) : error ? (
             <div className="mt-16 flex flex-col items-center justify-center text-center">
@@ -91,7 +95,7 @@ export default function Results() {
                     {copied ? <Check className="mr-1.5 h-4 w-4 text-emerald-500" /> : <Share2 className="mr-1.5 h-4 w-4" />}
                     {copied ? "Copied" : "Share"}
                   </Button>
-                  <Button size="sm" onClick={() => generateEvidenceReport(scan)}>
+                  <Button size="sm" onClick={downloadEvidenceReport}>
                     <Download className="mr-1.5 h-4 w-4" />
                     Evidence report
                   </Button>
@@ -178,5 +182,7 @@ export default function Results() {
     </div>
   );
 }
+
+
 
 

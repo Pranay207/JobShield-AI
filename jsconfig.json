@@ -1,4 +1,4 @@
-{
+﻿{
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -9,7 +9,7 @@
     "moduleResolution": "bundler",
     "lib": ["esnext", "dom"],
     "target": "esnext",
-    "checkJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

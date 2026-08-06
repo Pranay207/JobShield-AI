@@ -1,5 +1,5 @@
-const DEFAULTS = {
-  appUrl: "http://127.0.0.1:5173",
+﻿const DEFAULTS = {
+  appUrl: "https://job-shield-ai-beta.vercel.app",
   aiEnabled: true
 };
 

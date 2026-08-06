@@ -1,4 +1,4 @@
-const RULES = [
+ï»¿const RULES = [
   { label: "Upfront fee", score: 35, re: /(registration|training|security|processing|refundable|equipment|joining|activation).{0,35}(fee|charge|deposit|payment|amount)|pay\s*(rs\.?|inr|\u20b9)?\s*\d+/i },
   { label: "WhatsApp/Telegram pressure", score: 18, re: /whatsapp|telegram|t\.me|message me|personal number|dm me/i },
   { label: "Free email recruiter", score: 16, re: /[a-z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|rediffmail)\.com/i },
@@ -119,7 +119,7 @@ function escapeRegex(value) {
 
 function appUrl(path = "/analyzer") {
   return send("JOBSHIELD_GET_SETTINGS").then((response) => {
-    const base = response?.settings?.appUrl || "http://127.0.0.1:5173";
+    const base = response?.settings?.appUrl || "https://job-shield-ai-beta.vercel.app";
     return `${base.replace(/\/$/, "")}${path}`;
   });
 }
@@ -149,7 +149,7 @@ function render(result, state = {}) {
 
   root.innerHTML = collapsed ? `
     <button class="jobshield-pill ${levelClass(level)}" title="Open JobShield Copilot">
-      JS · ${score}
+      JS Â· ${score}
     </button>
   ` : `
     <div class="jobshield-widget ${levelClass(level)}">
@@ -157,13 +157,13 @@ function render(result, state = {}) {
         <div class="jobshield-logo">JS</div>
         <div class="jobshield-heading">
           <div class="jobshield-title">JobShield Copilot</div>
-          <div class="jobshield-subtitle">${level} · ${score}/100 · ${result.source || "Local scan"}</div>
+          <div class="jobshield-subtitle">${level} Â· ${score}/100 Â· ${result.source || "Local scan"}</div>
         </div>
         <button class="jobshield-icon-btn jobshield-collapse" title="Collapse">-</button>
       </div>
       <div class="jobshield-bar"><span style="width:${score}%"></span></div>
       ${state.aiLoading ? `<div class="jobshield-ai">AI scan running...</div>` : ""}
-      ${state.aiError ? `<div class="jobshield-ai jobshield-ai-error">AI unavailable · local scan active</div>` : ""}
+      ${state.aiError ? `<div class="jobshield-ai jobshield-ai-error">AI unavailable Â· local scan active</div>` : ""}
       ${result.summary ? `<p class="jobshield-summary">${escapeHtml(result.summary)}</p>` : ""}
       ${result.company ? `<div class="jobshield-company">Company: ${escapeHtml(result.company)}</div>` : ""}
       <div class="jobshield-hits">
