@@ -1,0 +1,101 @@
+{
+  "name": "CommunityReport",
+  "type": "object",
+  "properties": {
+    "scam_type": {
+      "type": "string",
+      "description": "Category of the reported scam",
+      "enum": [
+        "Upfront payment",
+        "Fake company",
+        "WhatsApp / Telegram scam",
+        "Fake recruiter",
+        "Document fraud",
+        "Pyramid / referral scam",
+        "Other"
+      ]
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company or recruiter name mentioned in the scam"
+    },
+    "city": {
+      "type": "string",
+      "description": "City / region where the target was approached"
+    },
+    "channel": {
+      "type": "string",
+      "description": "Channel used to contact the target",
+      "enum": [
+        "WhatsApp",
+        "Telegram",
+        "Email",
+        "Phone call",
+        "SMS",
+        "LinkedIn",
+        "Other"
+      ]
+    },
+    "amount_demanded": {
+      "type": "number",
+      "description": "Money the scammer asked for, in INR (0 if none)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what happened"
+    },
+    "status": {
+      "type": "string",
+      "description": "Review status of the report",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "scam_type",
+    "description"
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": null,
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

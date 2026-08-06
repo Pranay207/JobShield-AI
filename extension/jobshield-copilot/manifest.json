@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "JobShield ScamShield Copilot",
+  "version": "0.2.0",
+  "description": "Real-time job scam warnings with local detection, AI scan handoff, and page highlighting.",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["<all_urls>", "https://*.supabase.co/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "JobShield",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

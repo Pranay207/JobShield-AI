@@ -1,0 +1,100 @@
+{
+  "name": "Scan",
+  "type": "object",
+  "properties": {
+    "raw_text": {
+      "type": "string",
+      "description": "The job offer text that was analyzed"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of an uploaded screenshot/PDF, if any"
+    },
+    "language_detected": {
+      "type": "string",
+      "description": "Detected input language (English/Hindi/Telugu/etc.)"
+    },
+    "risk_score": {
+      "type": "number",
+      "description": "Scam risk score from 0 to 100"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "Low Risk",
+        "Medium Risk",
+        "High Risk"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "description": "Plain-language summary of the verdict"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name mentioned in the offer, if any"
+    },
+    "red_flags": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "company_verification": {
+      "type": "object",
+      "properties": {
+        "mca_status": {
+          "type": "string"
+        },
+        "gst_status": {
+          "type": "string"
+        },
+        "domain_check": {
+          "type": "string"
+        },
+        "blacklist_check": {
+          "type": "string"
+        },
+        "is_verified": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "raw_text",
+    "risk_score",
+    "risk_level"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "ScamPattern",
+  "type": "object",
+  "properties": {
+    "pattern_type": {
+      "type": "string",
+      "description": "Category of scam indicator"
+    },
+    "keyword": {
+      "type": "string",
+      "description": "Representative keyword/phrase for this pattern"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Relative weight/severity of this pattern (1-10)"
+    },
+    "detected_count": {
+      "type": "number",
+      "description": "How often this pattern has been seen (demo value)"
+    }
+  },
+  "required": [
+    "pattern_type",
+    "keyword",
+    "weight"
+  ],
+  "rls": {
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": null,
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

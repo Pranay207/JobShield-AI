@@ -1,0 +1,16 @@
+{
+  "name": "JobShield AI",
+  "short_name": "JobShield AI",
+  "description": "Job offer scam detection for India",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#172554",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
