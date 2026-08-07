@@ -1,4 +1,4 @@
-﻿const DEFAULTS = {
+const DEFAULTS = {
   appUrl: "https://job-shield-ai-beta.vercel.app",
   supabaseUrl: "https://tuayaldzrqivsdyrrehg.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1YXlhbGR6cnFpdnNkeXJyZWhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwMjA5OTksImV4cCI6MjEwMTU5Njk5OX0.6CkuMtSTTlQvhYLwU_0pXaxDRkV4RN23HBfVLbfZs78",

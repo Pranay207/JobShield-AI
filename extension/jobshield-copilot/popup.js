@@ -1,4 +1,4 @@
-﻿const DEFAULTS = {
+const DEFAULTS = {
   appUrl: "https://job-shield-ai-beta.vercel.app",
   aiEnabled: true
 };

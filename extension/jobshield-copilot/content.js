@@ -1,4 +1,4 @@
-﻿const RULES = [
+const RULES = [
   { label: "Upfront fee", score: 35, re: /(registration|training|security|processing|refundable|equipment|joining|activation).{0,35}(fee|charge|deposit|payment|amount)|pay\s*(rs\.?|inr|\u20b9)?\s*\d+/i },
   { label: "WhatsApp/Telegram pressure", score: 18, re: /whatsapp|telegram|t\.me|message me|personal number|dm me/i },
   { label: "Free email recruiter", score: 16, re: /[a-z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|rediffmail)\.com/i },

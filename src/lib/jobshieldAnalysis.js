@@ -1,4 +1,4 @@
-﻿import { api, supabase } from "@/api/supabaseClient";
+import { api, supabase } from "@/api/supabaseClient";
 
 const FLAG_RULES = [
   { type: 'upfront_payment', title: 'Upfront payment demand', severity: 'high', score: 30, re: /(registration|training|security|processing|refundable|equipment|joining).{0,30}(fee|charge|deposit|amount|payment)|pay\s*(rs\.?|inr)?\s*\d+/i, description: 'The offer appears to ask for money before genuine employment is established.' },

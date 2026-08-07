@@ -1,4 +1,4 @@
-﻿# JobShield ScamShield Copilot
+# JobShield ScamShield Copilot
 
 Chrome/Edge extension prototype for real-time job scam detection.
 

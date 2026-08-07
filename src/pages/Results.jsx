@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Download, Share2, ScanLine, Lightbulb, Loader2, AlertCircle, FileText, Copy, Check } from "lucide-react";
 import { api } from "@/api/supabaseClient";

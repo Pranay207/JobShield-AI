@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { MessageCircle, ShieldAlert, ExternalLink, Loader2, Check, Share2, Link2, Twitter, Linkedin, Facebook, Mail, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

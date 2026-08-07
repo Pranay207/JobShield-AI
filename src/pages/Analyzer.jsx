@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Upload, ClipboardPaste, FileText, X, ScanLine, AlertCircle, FolderOpen } from "lucide-react";
 import { api } from "@/api/supabaseClient";

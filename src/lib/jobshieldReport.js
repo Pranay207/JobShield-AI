@@ -1,4 +1,4 @@
-﻿import { jsPDF } from "jspdf";
+import { jsPDF } from "jspdf";
 
 const NAVY = [26, 45, 77];      // #1a2d4d
 const NAVY_DARK = [12, 24, 44];
