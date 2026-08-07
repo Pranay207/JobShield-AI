@@ -17,6 +17,7 @@ import CompanyTrustGraph from "@/components/jobshield/CompanyTrustGraph";
 import CommunityAlertCard from "@/components/jobshield/CommunityAlertCard";
 import OfferDnaCard from "@/components/jobshield/OfferDnaCard";
 import RecruiterRealityCard from "@/components/jobshield/RecruiterRealityCard";
+import TrustPathTimeline from "@/components/jobshield/TrustPathTimeline";
 
 export default function Results() {
   const { id } = useParams();
@@ -61,7 +62,7 @@ export default function Results() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" />
             Back to dashboard
@@ -107,6 +108,8 @@ export default function Results() {
               </div>
 
               <PaymentGuardCard scan={scan} />
+
+              <TrustPathTimeline scan={scan} />
 
               <ScamFingerprintCard scan={scan} />
 

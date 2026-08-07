@@ -196,3 +196,94 @@ export function buildRadarAlerts(scans = [], reports = []) {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 }
+
+function textHas(scan, regex) {
+  return regex.test(scan?.raw_text || "");
+}
+
+function flagHas(scan, terms) {
+  return hasFlag(scan, terms);
+}
+
+function trustItem(key, title, status, label, detail) {
+  return { key, title, status, label, detail };
+}
+
+export function buildTrustPath(scan) {
+  const text = scan?.raw_text || "";
+  const payment = PAYMENT_RE.test(text) || flagHas(scan, ["payment", "fee", "deposit", "upfront"]);
+  const docs = DOC_RE.test(text) || flagHas(scan, ["document", "aadhaar", "aadhar", "pan", "bank"]);
+  const privateChat = textHas(scan, /whatsapp|telegram|t\.me|dm me|message me|personal number/i) || flagHas(scan, ["whatsapp", "telegram", "messaging"]);
+  const freeEmail = FREE_EMAIL_RE.test(text) || flagHas(scan, ["generic email", "free email"]);
+  const urgency = textHas(scan, /urgent|today only|last chance|immediately|limited seats|reply fast/i) || flagHas(scan, ["urgency", "pressure"]);
+  const noInterview = textHas(scan, /without interview|no interview|direct joining|guaranteed job|selected without/i) || flagHas(scan, ["interview", "direct joining"]);
+  const hasCompany = Boolean(scan?.company_name);
+  const verified = Boolean(scan?.company_verification?.is_verified);
+  const risk = Number(scan?.risk_score || 0);
+
+  return [
+    trustItem(
+      "contact",
+      "First contact",
+      privateChat || urgency ? "watch" : "safe",
+      privateChat || urgency ? "Watch" : "Clean",
+      privateChat
+        ? "Conversation moved to WhatsApp/Telegram or a personal channel, which is common in job scams."
+        : urgency
+          ? "The message uses urgency pressure. Slow down and verify before replying."
+          : "No strong private-channel or urgency signal found in the first-contact text."
+    ),
+    trustItem(
+      "recruiter",
+      "Recruiter identity",
+      freeEmail ? "danger" : scan?.recruiter_identity?.status === "Impersonation Risk" ? "danger" : "watch",
+      freeEmail || scan?.recruiter_identity?.status === "Impersonation Risk" ? "Risk" : "Verify",
+      freeEmail
+        ? "Recruiter appears to use a free email domain instead of an official company domain."
+        : scan?.recruiter_identity?.verdict || "Ask for official company-domain email proof and a LinkedIn/company profile match."
+    ),
+    trustItem(
+      "offer",
+      "Offer proof",
+      noInterview ? "danger" : hasCompany ? "watch" : "danger",
+      noInterview ? "Risk" : hasCompany ? "Check" : "Weak",
+      noInterview
+        ? "The offer suggests direct joining or hiring without a real interview process."
+        : hasCompany
+          ? `Claimed company: ${scan.company_name}. Verify using the official website, not the message link.`
+          : "No clear company name was detected, so the offer has weak identity proof."
+    ),
+    trustItem(
+      "payment",
+      "Money request",
+      payment ? "danger" : "safe",
+      payment ? "Stop" : "None",
+      payment
+        ? "Payment, fee, deposit, training, equipment, or activation demand detected. Do not pay before independent verification."
+        : "No upfront payment demand was detected in the scanned text."
+    ),
+    trustItem(
+      "documents",
+      "Document safety",
+      docs ? "danger" : "safe",
+      docs ? "Stop" : "Safe",
+      docs
+        ? "Sensitive document or bank-detail request detected. Do not share Aadhaar, PAN, bank details, selfies, or OTPs."
+        : "No early sensitive-document request was detected."
+    ),
+    trustItem(
+      "decision",
+      "Final decision",
+      risk >= 70 ? "danger" : risk >= 40 ? "watch" : verified ? "safe" : "watch",
+      risk >= 70 ? "Reject" : risk >= 40 ? "Pause" : verified ? "Proceed" : "Verify",
+      risk >= 70
+        ? "High-risk verdict. Preserve evidence, block payment, and report if money or documents were shared."
+        : risk >= 40
+          ? "Medium-risk verdict. Do not proceed until recruiter, company, role, and payment terms are independently verified."
+          : verified
+            ? "Low-risk scan with verified company signals. Still confirm through official channels."
+            : "Low-risk scan, but company verification is not conclusive. Complete manual verification."
+    )
+  ];
+}
+
