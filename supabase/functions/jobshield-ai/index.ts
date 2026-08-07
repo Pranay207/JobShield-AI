@@ -195,7 +195,7 @@ Deno.serve(async (req) => {
       const prompt = 'Extract all readable job-offer text from this file. Detect the primary language. Return ONLY JSON: { "extracted_text": "", "language_detected": "English" }';
       return json(await callGemini([
         { text: prompt },
-        { inlineData: { mimeType: payload.mimeType, data: payload.base64 } },
+        { inline_data: { mime_type: payload.mimeType, data: payload.base64 } },
       ]));
     }
 
@@ -227,4 +227,5 @@ Deno.serve(async (req) => {
     return json({ error: error instanceof Error ? error.message : 'Unknown error' }, 500);
   }
 });
+
 
