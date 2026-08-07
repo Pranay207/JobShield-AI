@@ -7,6 +7,9 @@ const corsHeaders = {
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') || 'gemini-3.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const OPENAI_MODEL = Deno.env.get('OPENAI_MODEL') || 'gpt-4.1-mini';
+const OPENAI_URL = 'https://api.openai.com/v1/responses';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -27,7 +30,7 @@ function parseJsonText(text: string) {
     return JSON.parse(cleaned);
   } catch {
     const match = cleaned.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error('Gemini did not return JSON.');
+    if (!match) throw new Error('AI did not return JSON.');
     return JSON.parse(match[0]);
   }
 }
@@ -62,6 +65,77 @@ async function callGemini(parts: Array<Record<string, unknown>>, useJson = true)
   const text = data?.candidates?.[0]?.content?.parts?.map((part: { text?: string }) => part.text || '').join('\n').trim();
   if (!text) throw new Error('Gemini returned an empty response.');
   return useJson ? parseJsonText(text) : { answer: text };
+}
+
+
+function openAIContentFromGeminiParts(parts: Array<Record<string, unknown>>) {
+  return parts.map((part) => {
+    if (typeof part.text === 'string') {
+      return { type: 'input_text', text: part.text };
+    }
+
+    const inline = part.inline_data as { mime_type?: string; data?: string } | undefined;
+    if (inline?.data && inline?.mime_type) {
+      const dataUrl = `data:${inline.mime_type};base64,${inline.data}`;
+      if (inline.mime_type.startsWith('image/')) {
+        return { type: 'input_image', image_url: dataUrl };
+      }
+      return { type: 'input_file', filename: `jobshield-upload.${inline.mime_type.includes('pdf') ? 'pdf' : 'bin'}`, file_data: dataUrl };
+    }
+
+    return { type: 'input_text', text: JSON.stringify(part) };
+  });
+}
+
+function textFromOpenAIResponse(data: Record<string, unknown>) {
+  if (typeof data.output_text === 'string' && data.output_text.trim()) return data.output_text.trim();
+
+  const output = data.output as Array<Record<string, unknown>> | undefined;
+  const chunks: string[] = [];
+  for (const item of output || []) {
+    const content = item.content as Array<Record<string, unknown>> | undefined;
+    for (const part of content || []) {
+      if (typeof part.text === 'string') chunks.push(part.text);
+    }
+  }
+  return chunks.join('\n').trim();
+}
+
+async function callOpenAI(parts: Array<Record<string, unknown>>, useJson = true) {
+  if (!OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is not set in Supabase secrets.');
+  }
+
+  const res = await fetch(OPENAI_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: OPENAI_MODEL,
+      input: [{ role: 'user', content: openAIContentFromGeminiParts(parts) }],
+      temperature: 0.2,
+    }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error?.message || 'OpenAI request failed.');
+  }
+
+  const text = textFromOpenAIResponse(data);
+  if (!text) throw new Error('OpenAI returned an empty response.');
+  return useJson ? parseJsonText(text) : { answer: text };
+}
+
+async function callAI(parts: Array<Record<string, unknown>>, useJson = true) {
+  try {
+    return await callGemini(parts, useJson);
+  } catch (geminiError) {
+    console.warn('Gemini failed, trying OpenAI backup:', geminiError);
+    return await callOpenAI(parts, useJson);
+  }
 }
 
 const analysisPrompt = (text: string) => `You are JobShield, an expert scam-detection system for job offers targeting job seekers in India.
@@ -185,7 +259,7 @@ Deno.serve(async (req) => {
       if (!payload.text || String(payload.text).trim().length < 20) {
         return json({ error: 'Offer text is too short.' }, 400);
       }
-      return json(await callGemini([{ text: analysisPrompt(String(payload.text)) }]));
+      return json(await callAI([{ text: analysisPrompt(String(payload.text)) }]));
     }
 
     if (action === 'extract') {
@@ -193,7 +267,7 @@ Deno.serve(async (req) => {
         return json({ error: 'Missing file content.' }, 400);
       }
       const prompt = 'Extract all readable job-offer text from this file. Detect the primary language. Return ONLY JSON: { "extracted_text": "", "language_detected": "English" }';
-      return json(await callGemini([
+      return json(await callAI([
         { text: prompt },
         { inline_data: { mime_type: payload.mimeType, data: payload.base64 } },
       ]));
@@ -201,25 +275,25 @@ Deno.serve(async (req) => {
 
     if (action === 'verify_company') {
       if (!payload.companyName) return json({ error: 'Missing companyName.' }, 400);
-      return json(await callGemini([{ text: verificationPrompt(String(payload.companyName)) }]));
+      return json(await callAI([{ text: verificationPrompt(String(payload.companyName)) }]));
     }
 
     if (action === 'offer_dna') {
       if (!payload.text || String(payload.text).trim().length < 20) {
         return json({ error: 'Offer text is too short.' }, 400);
       }
-      return json(await callGemini([{ text: offerDnaPrompt(String(payload.text)) }]));
+      return json(await callAI([{ text: offerDnaPrompt(String(payload.text)) }]));
     }
 
     if (action === 'recruiter_reality') {
       if (!payload.text || String(payload.text).trim().length < 20) {
         return json({ error: 'Offer text is too short.' }, 400);
       }
-      return json(await callGemini([{ text: recruiterRealityPrompt(String(payload.text), String(payload.companyName || ''), payload.verification || null) }]));
+      return json(await callAI([{ text: recruiterRealityPrompt(String(payload.text), String(payload.companyName || ''), payload.verification || null) }]));
     }
     if (action === 'coach') {
       if (!payload.question) return json({ error: 'Missing question.' }, 400);
-      return json(await callGemini([{ text: coachPrompt(String(payload.context || ''), String(payload.question)) }], false));
+      return json(await callAI([{ text: coachPrompt(String(payload.context || ''), String(payload.question)) }], false));
     }
 
     return json({ error: 'Unknown action.' }, 400);
