@@ -112,23 +112,30 @@ function fileToBase64(file) {
   });
 }
 
+async function uploadFileIfAllowed(file) {
+  try {
+    const uploaded = await api.storage.uploadFile(file);
+    return uploaded?.file_url || null;
+  } catch (error) {
+    console.warn('File storage upload skipped; continuing with analysis only:', error);
+    return null;
+  }
+}
+
 export async function uploadAndExtractText(file, onProgress) {
   const mimeType = normalizedMimeType(file);
-  onProgress?.('upload', 'Uploading file to secure storage...');
-  const uploadPromise = api.storage.uploadFile(file);
+  onProgress?.('upload', 'Preparing file for scan...');
+  const uploadPromise = uploadFileIfAllowed(file);
 
   if (mimeType === 'text/plain') {
-    const [{ file_url }, text] = await Promise.all([uploadPromise, fileToText(file)]);
+    const [file_url, text] = await Promise.all([uploadPromise, fileToText(file)]);
     if (text.trim().length < 20) {
       throw new Error('This text file does not contain enough readable job-offer content. Paste the full offer message manually.');
     }
     return { file_url, text, language: detectLanguage(text) };
   }
 
-  const [{ file_url }, base64] = await Promise.all([
-    uploadPromise,
-    fileToBase64(file)
-  ]);
+  const base64 = await fileToBase64(file);
 
   onProgress?.('extract', 'Reading text from the uploaded file...');
   let result;
@@ -148,7 +155,7 @@ export async function uploadAndExtractText(file, onProgress) {
   }
 
   return {
-    file_url,
+    file_url: await uploadPromise,
     text,
     language: result.language_detected || detectLanguage(text)
   };
@@ -179,6 +186,7 @@ export async function verifyCompany(companyName) {
     };
   }
 }
+
 
 
 
