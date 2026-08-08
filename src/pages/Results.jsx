@@ -18,6 +18,7 @@ import CommunityAlertCard from "@/components/jobshield/CommunityAlertCard";
 import OfferDnaCard from "@/components/jobshield/OfferDnaCard";
 import RecruiterRealityCard from "@/components/jobshield/RecruiterRealityCard";
 import TrustPathTimeline from "@/components/jobshield/TrustPathTimeline";
+import RecruiterProofCard from "@/components/jobshield/RecruiterProofCard";
 
 export default function Results() {
   const { id } = useParams();
@@ -125,6 +126,8 @@ export default function Results() {
               <OfferDnaCard scan={scan} />
 
               <RecruiterRealityCard scan={scan} />
+
+              <RecruiterProofCard scan={scan} />
 
               <CompanyTrustGraph scan={scan} />
 
