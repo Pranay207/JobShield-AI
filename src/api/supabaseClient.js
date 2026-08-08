@@ -138,6 +138,14 @@ export const api = {
     }
   },
   entities: Object.fromEntries(Object.entries(tableNames).map(([name, table]) => [name, entity(table)])),
+  alerts: {
+    async notifyHighRiskReport(report) {
+      const { data, error } = await supabase.functions.invoke('jobshield-alerts', { body: { report } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      return data;
+    }
+  },
   storage: {
     async uploadFile(file) {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '-');

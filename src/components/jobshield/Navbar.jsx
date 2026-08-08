@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ShieldCheck, Sun, Moon, ScanLine, Home, BookOpen, Radar as RadarIcon, LayoutDashboard, Menu, X, UserSearch, FileSearch, FileText, Siren, RadioTower } from "lucide-react";
+import { ShieldCheck, Sun, Moon, ScanLine, Home, BookOpen, Radar as RadarIcon, LayoutDashboard, Menu, X, UserSearch, FileSearch, FileText, Siren, RadioTower, ArrowRightLeft } from "lucide-react";
 import { useTheme } from "@/lib/useTheme";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ const links = [
   { to: "/offer-dna", label: "OfferDNA", icon: FileSearch },
   { to: "/radar", label: "Scam Radar", icon: RadarIcon },
   { to: "/my-reports", label: "My Reports", icon: FileText },
+  { to: "/compare", label: "Compare Scans", icon: ArrowRightLeft },
   { to: "/guide", label: "Red Flags Guide", icon: BookOpen },
   { to: "/browser-copilot", label: "Browser Copilot", icon: RadioTower },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard }

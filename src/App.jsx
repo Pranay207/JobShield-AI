@@ -21,6 +21,7 @@ import OfferDna from './pages/OfferDna';
 import MyReports from './pages/MyReports';
 import EmergencyHelp from './pages/EmergencyHelp';
 import BrowserCopilot from './pages/BrowserCopilot';
+import CompareScans from './pages/CompareScans';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -53,6 +54,7 @@ const AuthenticatedApp = () => {
       <Route path="/check-recruiter" element={<CheckRecruiter />} />
       <Route path="/offer-dna" element={<OfferDna />} />
       <Route path="/my-reports" element={<MyReports />} />
+      <Route path="/compare" element={<CompareScans />} />
       <Route path="/emergency-help" element={<EmergencyHelp />} />
       <Route path="/browser-copilot" element={<BrowserCopilot />} />
       <Route path="/login" element={<Login />} />

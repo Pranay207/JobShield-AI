@@ -157,6 +157,7 @@ Supabase Edge Function secrets:
 ```bash
 npx supabase secrets set GEMINI_API_KEY=your_gemini_api_key --project-ref your_project_ref
 npx supabase secrets set GEMINI_MODEL=gemini-3.5-flash --project-ref your_project_ref
+npx supabase secrets set SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url --project-ref your_project_ref
 ```
 
 > **Important:** `VITE_*` variables are exposed to the browser. Only put public frontend values there. Keep Gemini and other private service keys in Supabase Secrets.
@@ -173,6 +174,7 @@ Deploy the AI Edge Function:
 
 ```bash
 npx supabase functions deploy jobshield-ai --project-ref your_project_ref
+npx supabase functions deploy jobshield-alerts --project-ref your_project_ref
 ```
 
 On Windows, if Supabase CLI has certificate issues, run:
@@ -180,6 +182,7 @@ On Windows, if Supabase CLI has certificate issues, run:
 ```powershell
 $env:NODE_OPTIONS="--use-system-ca"
 npx supabase functions deploy jobshield-ai --project-ref your_project_ref
+npx supabase functions deploy jobshield-alerts --project-ref your_project_ref
 ```
 
 ## Browser Copilot Extension
@@ -199,6 +202,24 @@ Load it in Chrome or Microsoft Edge:
 5. Open Gmail, LinkedIn, WhatsApp Web, Telegram Web, or a job portal and test suspicious job content.
 
 > Browser Copilot is desktop-browser based. On mobile, users can scan through the JobShield web app by pasting messages or uploading screenshots/PDFs.
+
+## Slack Alerts
+
+JobShield can notify a community moderation team whenever a high-risk community scam report is submitted. The Slack webhook is stored as a Supabase secret and is never exposed in frontend code.
+
+Configure the secret:
+
+```bash
+npx supabase secrets set SLACK_WEBHOOK_URL=https://hooks.slack.com/services/your/webhook/url --project-ref your_project_ref
+```
+
+Deploy the alert function:
+
+```bash
+npx supabase functions deploy jobshield-alerts --project-ref your_project_ref
+```
+
+A report is treated as high risk when it includes a payment amount, high-risk scam type, or risky text signals such as OTP, Aadhaar/PAN, UPI, bank details, refundable deposit, registration fee, or WhatsApp/Telegram pressure.
 
 ## Deployment
 

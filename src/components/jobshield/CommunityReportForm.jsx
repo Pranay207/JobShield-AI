@@ -33,7 +33,7 @@ export default function CommunityReportForm({ onSubmitted }) {
     }
     setBusy(true);
     try {
-      await api.entities.CommunityReport.create({
+      const report = await api.entities.CommunityReport.create({
         scam_type: form.scam_type,
         company_name: form.company_name.trim(),
         city: form.city.trim(),
@@ -41,6 +41,7 @@ export default function CommunityReportForm({ onSubmitted }) {
         amount_demanded: form.amount_demanded ? Number(form.amount_demanded) : 0,
         description: form.description.trim()
       });
+      api.alerts.notifyHighRiskReport(report).catch((error) => console.warn("Slack alert skipped:", error));
       setForm({ scam_type: "Upfront payment", company_name: "", city: "", channel: "WhatsApp", amount_demanded: "", description: "" });
       setOpen(false);
       onSubmitted?.();
